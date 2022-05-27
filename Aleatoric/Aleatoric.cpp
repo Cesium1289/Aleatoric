@@ -1,5 +1,4 @@
 #include<SFML/Audio.hpp>
-#include<SFML/Graphics.hpp>
 #include<iostream>
 #include<cmath>
 #include<cstdlib>
@@ -9,14 +8,16 @@ int ParseArguments(int& rootKey, int& sig, float& bpm, float& frac, float& accen
 void CalculateFrequency(float freqArray[], vector<int>& scaleArray, int RootKey);
 void fillMajorArray(vector<int>& scaleArray, char key);
 void RemoveSubString(string& original, const char* substring);
-void GenerateWaves(float freqArray[], sf::SoundBuffer soundSamples[], float sineWaveAmp, float bpm, float frac, float squareWaveAmp);
+void GenerateWaves(float freqArray[], sf::SoundBuffer SineWaves[], sf::SoundBuffer& squareWave, float sineWaveAmp, float bpm, float frac, float squareWaveAmp);
 void SetAmplitudes(float accent, float volume, float& squareAmp, float& sineAmp);
 void RampSamples(vector<sf::Int16>& sample, float frac);
 const int NUM_SAMPLES = 48000;
-const int NUM_KEYS = 8;
+const int NUM_KEYS = 7;
+
 int main()
 {
-	sf::SoundBuffer soundSamples[NUM_KEYS]; 
+	sf::SoundBuffer sineSamples[NUM_KEYS]; 
+	sf::SoundBuffer squareSample;
 	sf::Sound sound;
 	const char* argv[] = {"--bpm[14]","--beats[10]" };
 	int argc =2;
@@ -24,10 +25,10 @@ int main()
 	float sineWaveAmp =100;
 	vector<int> scaleArray;
 	int rootKey = 48;
-	int sig = 8;
-	float bpm = 120.0f;
+	int sig = 3;
+	float bpm = 90.0f;
 	float frac = 0.5f;
-	float accent = 8.0f;
+	float accent = 5.0f;
 	float volume = 8.0f;
 	float freqArray[NUM_KEYS];
 	char key = 'c';
@@ -35,25 +36,31 @@ int main()
 	SetAmplitudes(accent, volume, squareWaveAmp, sineWaveAmp);
 	fillMajorArray(scaleArray, key);
 	CalculateFrequency(freqArray, scaleArray, rootKey);
-	GenerateWaves(freqArray, soundSamples, sineWaveAmp, bpm, frac, squareWaveAmp);
-	sound.setBuffer(soundSamples[0]);
-	int currentSig = sig;
-	sound.play();
-
-
+	GenerateWaves(freqArray, sineSamples, squareSample, sineWaveAmp, bpm, frac, squareWaveAmp);
+	
+	int i = 1;
 	while (1)
 	{
-		if (currentSig = sig)
-		{
-
-		}
-		sound.play();
 		while (sound.getStatus() == sf::Sound::Playing)
-		{
 			sf::sleep(sf::milliseconds(100));
+		
+
+		if (i ==sig)
+		{
+			sound.setBuffer(squareSample);
+			sound.play();
+			i = 0;
 		}
-		sound.setBuffer(soundSamples[rand() % NUM_KEYS]);
+		else
+		{
+			sound.setBuffer(sineSamples[rand() % NUM_KEYS]);
+			sound.play();
+		}
+		
+		cout << "i is " << i << endl;
+		++i;
 	}
+	
 	
 
 
@@ -91,11 +98,11 @@ cout << "Sample rate: " << soundSamples[0].getSampleRate() << endl;
 //Calculate the freqency of the random keys that can be played
 void CalculateFrequency(float freqArray[], vector<int>& scaleArray, int rootKey)
 {
-	int temp = 0;
-	for (size_t i = 0; i < NUM_KEYS; i++)
+	int scaleOffset = 0;
+	for (size_t i = 0; i < NUM_KEYS + 1; i++)
 	{
-		freqArray[i] = 440 * static_cast<float>(pow(2.0, ((rootKey + static_cast<float>(scaleArray.at(i) + temp) - 69) / 12)));
-		temp += scaleArray[i];
+		freqArray[i] = 440 * static_cast<float>(pow(2.0, ((rootKey + static_cast<float>(scaleArray.at(i) + scaleOffset) - 69) / 12)));
+		scaleOffset += scaleArray[i];
 	}
 		
 	for (size_t i = 0; i < NUM_KEYS; i++)
@@ -114,43 +121,45 @@ void RemoveSubString(string& original, const char* substring)
 }
 
 //Generates the square and sine waves for keys of a given scale
-void GenerateWaves(float freqArray[], sf::SoundBuffer soundSamples[], float sineWaveAmp, float bpm, float frac, float sqareWaveAmp)
+void GenerateWaves(float freqArray[], sf::SoundBuffer sineSamples[], sf::SoundBuffer& squareSample, float sineWaveAmp, float bpm, float frac, float squareWaveAmp)
 {
 	vector<sf::Int16> buffer;
 	double temp;
 	int a;
+	float full = 1.0f / squareWaveAmp;
+	float half = full / 2.0f;
+	float local;
+	
+	float c;
 	for (size_t i = 0; i < 1; i++)
 	{
 		for (size_t j = 0; j < NUM_SAMPLES; j++)
 		{
-			temp = (2 * ((2 * (freqArray[i] * static_cast<float>(j))) - (2 * freqArray[i] * static_cast<float>(j)))) + 1;
-			a = temp * 1000;
-			buffer.push_back(a);
+			//c =  sin(2 * 3.14 * freqArray[i] * (static_cast<float>(j) / NUM_SAMPLES));
+			if (sin(2 * 3.14 * freqArray[i] * (static_cast<float>(j) / NUM_SAMPLES)) > 0)
+				buffer.push_back(10000 * squareWaveAmp);
+			else
+				buffer.push_back(-10000 * squareWaveAmp);
+
 		}
 	}
-	soundSamples[0].loadFromSamples(&buffer[0], buffer.size(), 1, NUM_SAMPLES* (bpm / 60));
-		
+	RampSamples(buffer, frac);
+	//load square wave data into sound buffer
+	squareSample.loadFromSamples(&buffer[0], buffer.size(), 1, NUM_SAMPLES* (bpm / 60));	
 
-	//loop through all possible keys in a step for a given root
-	for (size_t i = 1; i < NUM_KEYS; i++)
+	for (size_t i = 1; i < NUM_KEYS+1; i++)
 	{
 		buffer.clear();
-
+		cout << "FREQ ARRAY AT I IS  " << freqArray[i] << endl;
+		//generate the sine wave
 		for (size_t j = 0; j < NUM_SAMPLES; j++)
-			buffer.push_back(1000 * sineWaveAmp * sin(2 * 3.14 * freqArray[i] * (static_cast<float>(j) / NUM_SAMPLES)));
+			buffer.push_back(10000 * sineWaveAmp * sin(2 * 3.14 * freqArray[i] * (static_cast<float>(j) / NUM_SAMPLES)));
 			
 		//ramp the sample 
 		RampSamples(buffer, frac);
 
-		//add samples to the sound samples
-		soundSamples[i].loadFromSamples(&buffer[0], buffer.size(), 1, NUM_SAMPLES * (bpm / 60));
-		cout << "SAMPLE : " << i << endl;
-		cout << "\n\n-_-_-_-Sine-wave Summary-_-_-_-\n";
-		cout << "Number of channels: " << soundSamples[i].getChannelCount() << endl;
-		cout << "Sample size: " << soundSamples[i].getSampleCount() << endl;
-		cout << "Duration (in seconds): " << soundSamples[i].getDuration().asSeconds() << endl;
-		cout << "Sample rate: " << soundSamples[i].getSampleRate() << endl;
-		
+		//add sine waves to sound buffer
+		sineSamples[i-1].loadFromSamples(&buffer[0], buffer.size(), 1, NUM_SAMPLES * (bpm / 60));	
 	}
 }
 
@@ -181,7 +190,8 @@ void RampSamples(vector<sf::Int16>& sample, float frac)
 	}
 	
 	n = rampSamples - 1;
-	//apply the right half of a triangle window to last NUM_SAMPLES * frac' samples
+
+	//apply the right half of a triangle window to last 'NUM_SAMPLES * frac' samples
 	for (size_t i = NUM_SAMPLES - rampSamples; i < NUM_SAMPLES; i++)
 	{
 		temp = n - ((static_cast<float>(rampSamples)));
