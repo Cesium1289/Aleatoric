@@ -13,7 +13,7 @@ I'm happy with how it turned out, and I believe everything works properly.
 Nothing more needs to be done to this program. Everything that was asked for should work!
 
 **To build this program**\
-To be able to build this program, you will need to install the following to get the program to run. Once these are installed, you will want to create the .exe by typing 'make'. Once the makefile has been created, you can run the program like a normal .exe and will need to pass the WAV as an argument to get an altered WAV file.
+To build this program, you will need to install the following to get the program to run. Once these are installed, you will want to create the .exe by typing 'make'. Once the makefile has been created, you can run the program like a normal .exe and can choose to use arguments or run the program without them. Argument usage is described later in this document.
 
 *Installs the sfml library that is used:*\
 **sudo apt-get install libsfml-dev** 
