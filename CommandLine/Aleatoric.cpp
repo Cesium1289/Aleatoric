@@ -84,6 +84,7 @@ int main(int argc, char* argv[])
 	}
 }
 
+//Check if user provided arguments are within a valid range
 bool ValidArguments(int& rootKey, int& sig, float& bpm, float& frac, float& accent, float& volume,char& key)
 {
 	if (!CheckKeyValue(rootKey, key))
