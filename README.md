@@ -21,7 +21,7 @@ To be able to build this program, you will need to install the following to get 
 **sudo apt-get install g++**
 
 **How to use command line arguments**\
-You can use any amount of the following command line arguments or none if you choose and default values will be used.
+You can use any amount of the following command line arguments or none if you choose and default values will be used.\
 ***--root[x]*** This is the root tone of the scale, where x is a valid MIDI key from 21-115\
 ***--beats[x]*** Number of beats per measure, where x is a whole number greater than 0\
 ***--bpm[x]*** number of beats per minute, where x is a value greater than 0.0\
