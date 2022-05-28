@@ -6,8 +6,8 @@
  This program will take user input and plays a sequence of notes, most of which are randomly selected from a major scale.
  
 **How it went**\
-This program for the most part went fairly smooth. It took a lot of time to properly get everything to work, but it was worth it.
-I'm happy with how it turned out and I believe everything works properly.
+This program, for the most part went fairly smooth. It took a lot of time to properly get everything to work, but it was worth it. 
+I'm happy with how it turned out, and I believe everything works properly.
 
 **What needs to be done**\
 Nothing more needs to be done to this program. Everything that was asked for should work!
