@@ -15,10 +15,10 @@ Nothing more needs to be done to this program. Everything that was asked for sho
 To be able to build this program, you will need to install the following to get the program to run. Once these are installed, you will want to create the .exe by typing 'make'. Once the makefile has been created, you can run the program like a normal .exe and will need to pass the WAV as an argument to get an altered WAV file.
 
 *Installs the sfml library that is used:*\
-**sudo apt-get install libsfml-dev** \
+**sudo apt-get install libsfml-dev** 
 
 *Installs the g++ compiler that is used to compile the program:*
-**sudo apt-get install g++**\
+**sudo apt-get install g++**
 
 **How to use command line arguments**\
 You can use any amount of the following command line arguments or none if you choose and default values will be used.
@@ -30,7 +30,7 @@ You can use any amount of the following command line arguments or none if you ch
 ***--volume[x]*** volume of the unaccented beats of each measure, where x is between 0.0-10.0\
 \
 **Example of how a command line arguments are used**\
-./Aleatoirc --bpm[120] --volume[8] --root[64]\
+./Aleatoirc --bpm[120] --volume[8] --root[64]
 
 
 
