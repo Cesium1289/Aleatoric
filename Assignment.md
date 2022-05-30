@@ -1,4 +1,4 @@
-# HW 4 Aleatoric#
+# HW 4 Aleatoric
 
 In this assignment you will create a generator of randomized “music.” You will learn about the major scale, about beats and measures, and about the complexity of detail in music generation.
 
@@ -100,5 +100,5 @@ Please do not include executables, WAV files other than the ones asked for, .git
 tl;dr: Your submission should be a ZIP file containing the following
 
 * ./README.md
-* ./mycode.myprogramminglanguage
+* ./mycode.myprogramminglanguage\
 and whatever build files and stuff are absolutely needed.
