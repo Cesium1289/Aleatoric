@@ -1,4 +1,4 @@
-#HW 4 Aleatoric#
+#HW 4 Aleatoric
 
 In this assignment you will create a generator of randomized “music.” You will learn about the major scale, about beats and measures, and about the complexity of detail in music generation.
 
