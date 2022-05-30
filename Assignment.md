@@ -19,10 +19,10 @@ C[5] (key 72)
 F[5] (key 77)
 C[6] (key 84)
 A[5] (key 81)
-Beat Time
+### Beat Time
 Beats will be played at a tempo (time per beat) selected by the user. Tempo is normally specified in “beats per minute” (BPM) which is a bit of an annoying unit. Divide 60 by BPM to get seconds per beat.
 
-Measure Accents and Volume
+### Measure Accents and Volume
 The first beat of each measure will be accented in two ways.
 
 The first beat will be a square wave tone, the rest of the beats will be sine wave tones.
@@ -38,14 +38,14 @@ C[5] (key 72), square wave, A = 0.03162277660168379
 F[5] (key 77), sine wave, A = 0.251188643150958
 C[6] (key 84), sine wave, A = 0.251188643150958
 A[5] (key 81), sine wave, A = 0.251188643150958
-Note Envelope
+### Note Envelope
 If you don’t use some kind of envelope, played notes will click at the start and end. Use a trapezoidal attack-release envelope: ramp the envelope up from 0.0 to 1.0 over the attack period at the start of the note, and ramp back down from 1.0 to 0.0 over the release period at the end of the note. Make the attack and release times the same. Graphically, it looks like this:
 
 
 Trapezoidal AR Envelope
 Apply this envelope to the note by multiplying sample-by-sample.
 
-Pseudocode
+### Pseudocode
 In the end, your program should look roughly like this:
 
 repeat until interrupted
@@ -54,7 +54,7 @@ repeat until interrupted
         k ← random key from scale up 1 to 8 scale steps from root
         play frequency k for beat interval (sine wave, volume, ramp)
 
-Command
+### Command
 Your program should be named aleatoric — for example, aleatoric.py if you are writing Python, or aleatoric.cpp if you are writing C++.
 
 Your program should accept any combination of five command-line arguments. The default value to use if the argument is not given is in square brackets. Default numbers without a decimal point indicate integer arguments; default numbers with a decimal point indicate floating-point arguments.
@@ -72,11 +72,9 @@ Your program should accept any combination of five command-line arguments. The d
 --volume VOLUME: Use the given VOLUME from 0..10 as the note volume for the unaccented beats of each measure. [8.0]
 
 Keep the program textually quiet: no output should be printed during operation.
-Hints
-Remember the frequency formula: the frequency  for MIDI key number  is
-
-
-You can check that the BPM for your program is what you asked for by tapping along with your program on this BPM website (Links to an external site.).
+### Hints
+* Remember the frequency formula: the frequency  for MIDI key number  is
+* You can check that the BPM for your program is what you asked for by tapping along with your program on this BPM website (Links to an external site.).
 
 Wikipedia provides this odd but fun formula (slightly modified by me) for the value  of a square wave with frequency  at time . ( is the “floor” of : the greatest integer less than or equal to .)
 
