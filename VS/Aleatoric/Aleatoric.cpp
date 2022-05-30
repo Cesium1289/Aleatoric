@@ -1,6 +1,5 @@
 //NAME:Carson Hansen
 //DATE: 5/27/2022
-//PURPOSE: Generate
 #include<SFML/Audio.hpp>
 #include<iostream>
 #include<cmath>
