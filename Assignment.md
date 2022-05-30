@@ -1,13 +1,13 @@
-#HW 4 Aleatoric#
+# HW 4 Aleatoric#
 
 In this assignment you will create a generator of randomized “music.” You will learn about the major scale, about beats and measures, and about the complexity of detail in music generation.
 
-**Background**
+## Background
 Aleatoric music (Links to an external site.) is a fancy name for music produced partly at random, but with a human providing the organizing principles.
 
 One of the easiest kinds of aleatoric music to produce is to pick random notes from a scale. Doing just this leads to really boring barely-music. Breaking the notes up into measures with a fixed number of beats per measure (usually 3, 4, 6 or 8) will give a sense of rhythm and flow: the measure starts can be identified by accenting (strengthening somehow) the first beat of each measure. Making the first beat always be at the “root pitch” (starting pitch) of the chosen scale makes the output sound more like music.
 
-##The Assignment##
+## The Assignment
 You will build a generator that plays a sequence of notes, most of which are randomly selected from a major scale.
 
 ##Note Pitches##
