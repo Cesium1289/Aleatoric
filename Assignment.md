@@ -74,15 +74,15 @@ Your program should accept any combination of five command-line arguments. The d
 Keep the program textually quiet: no output should be printed during operation.
 ### Hints
 * Remember the frequency formula: the frequency  for MIDI key number  is
+  f = 440 * 2^{(k - 69) / 12}
 * You can check that the BPM for your program is what you asked for by tapping along with your program on this BPM website (Links to an external site.).
+* Wikipedia provides this odd but fun formula (slightly modified by me) for the value  of a square wave with frequency  at time . ( is the “floor” of : the greatest integer less than or equal to .)
+y = 4[ft] - 2[2ft] + 1
 
-Wikipedia provides this odd but fun formula (slightly modified by me) for the value  of a square wave with frequency  at time . ( is the “floor” of : the greatest integer less than or equal to .)
+*  For a sine wave, of course, the formula is just
+ y = sin(2 * pi * ft)
 
-
-For a sine wave, of course, the formula is just
-
-
-Don’t be fooled if your volume controls don’t match the way you would expect. A square wave at a given amplitude sounds much louder than a sine wave at the same amplitude, for reasons we have discussed.
+* Don’t be fooled if your volume controls don’t match the way you would expect. A square wave at a given amplitude sounds much louder than a sine wave at the same amplitude, for reasons we have discussed.
 
 Turn-in
 Please submit your work here as a single ZIP archive. Your archive should contain:
