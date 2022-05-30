@@ -10,7 +10,7 @@ One of the easiest kinds of aleatoric music to produce is to pick random notes f
 ## The Assignment
 You will build a generator that plays a sequence of notes, most of which are randomly selected from a major scale.
 
-##Note Pitches##
+### Note Pitches
 Your program will continuously play random measures of music. Each measure will start with the root note of the major scale, and then continue with randomly-selected notes of the major scale for the remaining beats. These randomly-selected tones should be chosen from scale notes 2..8.
 
 For example, if the user has selected a C[5] major scale (key 72) and four beats per measure, your notes for a measure might be
