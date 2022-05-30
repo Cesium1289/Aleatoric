@@ -29,15 +29,16 @@ The first beat will be a square wave tone, the rest of the beats will be sine wa
 
 The first beat may have a different volume than the remaining beats. The user can select the volume for the first beat and for the remaining beats.
 
-As we have discussed many times, the volume of a note is logarithmic in the amplitude of that note. For this assignment, the user will be able to set a volume in the range 0 to 10, where 10 is full volume and 0 is 60dB down from that volume. (This means that the volume at 0 is not quite 0, but quiet enough to hardly hear. See this great TI Blog Post (Links to an external site.) for an interesting discussion on this topic.) The formula you want for a given amplitude  (0..1) given a volume knob setting  (0..10) is:
+As we have discussed many times, the volume of a note is logarithmic in the amplitude of that note. For this assignment, the user will be able to set a volume in the range 0 to 10, where 10 is full volume and 0 is 60dB down from that volume. (This means that the volume at 0 is not quite 0, but quiet enough to hardly hear. See this great TI Blog Post (Links to an external site.) for an interesting discussion on this topic.) The formula you want for a given amplitude  (0..1) given a volume knob setting  (0..10) is:\
+A = 10^( -6(10 - v) /20)
 
 
-For our example, with user volumes 5 and 8, the output will thus be
+For our example, with user volumes 5 and 8, the output will thus be\
 
-C[5] (key 72), square wave, A = 0.03162277660168379
-F[5] (key 77), sine wave, A = 0.251188643150958
-C[6] (key 84), sine wave, A = 0.251188643150958
-A[5] (key 81), sine wave, A = 0.251188643150958
+* C[5] (key 72), square wave, A = 0.03162277660168379
+* F[5] (key 77), sine wave, A = 0.251188643150958
+* C[6] (key 84), sine wave, A = 0.251188643150958
+* A[5] (key 81), sine wave, A = 0.251188643150958
 ### Note Envelope
 If you don’t use some kind of envelope, played notes will click at the start and end. Use a trapezoidal attack-release envelope: ramp the envelope up from 0.0 to 1.0 over the attack period at the start of the note, and ramp back down from 1.0 to 0.0 over the release period at the end of the note. Make the attack and release times the same. Graphically, it looks like this:
 
