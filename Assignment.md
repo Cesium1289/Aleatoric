@@ -15,10 +15,10 @@ Your program will continuously play random measures of music. Each measure will 
 
 For example, if the user has selected a C[5] major scale (key 72) and four beats per measure, your notes for a measure might be
 
-C[5] (key 72)
-F[5] (key 77)
-C[6] (key 84)
-A[5] (key 81)
+* C[5] (key 72)
+* F[5] (key 77)
+* C[6] (key 84)
+* A[5] (key 81)
 ### Beat Time
 Beats will be played at a tempo (time per beat) selected by the user. Tempo is normally specified in “beats per minute” (BPM) which is a bit of an annoying unit. Divide 60 by BPM to get seconds per beat.
 
