@@ -4,60 +4,56 @@
 #include<iostream>
 #include<cmath>
 #include<cstdlib>
-#include<cstring>
 using namespace std;
-
-bool ParseArguments(int& rootKey, int& sig, float& bpm, float& frac, float& accent, float& volume, int argc, char* argv[]);
+struct Arguments
+{
+	float squareWaveAmp;
+	float sineWaveAmp;
+	int rootKey = 45;
+	int sig = 8;
+	float bpm = 20.0f;
+	float frac = 0.5f;
+	float accent = 5.0f;
+	float volume = 8.0f;
+	char key;
+};
+bool ParseArguments(Arguments& args, int argc, const char* argv[]);
 void CalculateFrequency(float freqArray[], vector<int>& scaleArray, int RootKey);
 void fillMajorArray(vector<int>& scaleArray, char key);
 void RemoveSubString(string& original, const char* substring);
-void GenerateWaves(float freqArray[], sf::SoundBuffer SineWaves[], sf::SoundBuffer& squareWave, float sineWaveAmp, float bpm, float frac, float squareWaveAmp);
-void SetAmplitudes(float accent, float volume, float& squareAmp, float& sineAmp);
+void GenerateWaves(float freqArray[], sf::SoundBuffer SineWaves[], sf::SoundBuffer& squareWave, Arguments& args);
+void SetAmplitudes(Arguments& args);
 void RampSamples(vector<sf::Int16>& sample, float frac);
 int CheckKeyValue(int rootKey, char& character);
-bool ValidArguments(int& rootKey, int& sig, float& bpm, float& frac, float& accent, float& volume, char& key);
+bool ValidArguments(Arguments& args);
+float ParseSubString(string& obj);
 const int NUM_SAMPLES = 48000;
 const int NUM_KEYS = 7;
 
 int main(int argc, char* argv[])
 {
-	sf::SoundBuffer sineSamples[NUM_KEYS]; 
+	sf::SoundBuffer sineSamples[NUM_KEYS];
 	sf::SoundBuffer squareSample;
 	sf::Sound sound;
-	float squareWaveAmp;
-	float sineWaveAmp;
+	Arguments args;
 	vector<int> scaleArray;
-	int rootKey = 48;
-	int sig = 8;
-	float bpm = 90.0f;
-	float frac = 0.5f;
-	float accent = 5.0f;
-	float volume = 8.0f;
 	float freqArray[NUM_KEYS];
-	char key = 'c';
 
-	//check if arugments can be parsed and they are all valid
-	if (ParseArguments(rootKey, sig, bpm, frac, accent, volume, argc, argv) && ValidArguments(rootKey, sig, bpm, frac, accent, volume,key))
+
+	if (ParseArguments(args, arc, arv) && ValidArguments(args))
 	{
-		//set the amplitude of each wave
-		SetAmplitudes(accent, volume, squareWaveAmp, sineWaveAmp);
-
-		//get key note offsets
-		fillMajorArray(scaleArray, key);
-
-		//calculate wave frequencies
-		CalculateFrequency(freqArray, scaleArray, rootKey);
-
-		//generate waves
-		GenerateWaves(freqArray, sineSamples, squareSample, sineWaveAmp, bpm, frac, squareWaveAmp);
+		SetAmplitudes(args);
+		fillMajorArray(scaleArray, args.key);
+		CalculateFrequency(freqArray, scaleArray, args.rootKey);
+		GenerateWaves(freqArray, sineSamples, squareSample, args);
 
 		cout << "\n-_-_-Values used-_-_-\n";
-		cout << "Root: " << rootKey << endl;
-		cout << "Beats per measure: " << sig << endl;
-		cout << "BPM: " << bpm << endl;
-		cout << "Ramp: " << frac << endl;
-		cout << "Accent: " << accent << endl;
-		cout << "Volume: " << volume << endl;
+		cout << "Root: " << args.rootKey << endl;
+		cout << "Beats per measure: " << args.sig << endl;
+		cout << "BPM: " << args.bpm << endl;
+		cout << "Ramp: " << args.frac << endl;
+		cout << "Accent: " << args.accent << endl;
+		cout << "Volume: " << args.volume << endl;
 		int i = 1;
 
 		while (1)
@@ -67,7 +63,7 @@ int main(int argc, char* argv[])
 				sf::sleep(sf::milliseconds(100));
 
 			//check if square wave should be played
-			if (i == sig)
+			if (i == args.sig)
 			{
 				sound.setBuffer(squareSample);
 				sound.play();
@@ -83,33 +79,32 @@ int main(int argc, char* argv[])
 	}
 }
 
-//Check if user provided arguments are within a valid range
-bool ValidArguments(int& rootKey, int& sig, float& bpm, float& frac, float& accent, float& volume,char& key)
+bool ValidArguments(Arguments& args)
 {
-	if (!CheckKeyValue(rootKey, key))
+	if (!CheckKeyValue(args.rootKey, args.key))
 		return false;
-		
-	else if (sig < 1)
+
+	else if (args.sig < 1)
 	{
 		cout << "Enter a beats value greater than 1!\n";
 		return false;
 	}
-	else if (bpm < 0.1f)
+	else if (args.bpm < 0.1f)
 	{
 		cout << "Enter a bpm value greater than 0!\n";
 		return false;
 	}
-	else if (frac < 0.0f || frac > 0.5f)
+	else if (args.frac < 0.0f || args.frac > 0.5f)
 	{
 		cout << "Enter a ramp value that is between 0.0 - 0.5!\n";
 		return false;
 	}
-	else if (volume < 0.0f || volume > 10.0f)
+	else if (args.volume < 0.0f || args.volume > 10.0f)
 	{
 		cout << "Enter a volume value between 0.0 - 10.0!\n";
 		return false;
 	}
-	else if (accent < 0.0f || accent > 10.0f)
+	else if (args.accent < 0.0f || args.accent > 10.0f)
 	{
 		cout << "Enter a accent value between 0.0 - 10.0!\n";
 		return false;
@@ -141,7 +136,7 @@ void RemoveSubString(string& original, const char* substring)
 }
 
 //Generates the square and sine waves for keys of a given scale
-void GenerateWaves(float freqArray[], sf::SoundBuffer sineSamples[], sf::SoundBuffer& squareSample, float sineWaveAmp, float bpm, float frac, float squareWaveAmp)
+void GenerateWaves(float freqArray[], sf::SoundBuffer sineSamples[], sf::SoundBuffer& squareSample, Arguments& args)
 {
 	vector<sf::Int16> buffer;
 
@@ -149,38 +144,38 @@ void GenerateWaves(float freqArray[], sf::SoundBuffer sineSamples[], sf::SoundBu
 	for (size_t j = 0; j < NUM_SAMPLES; j++)
 	{
 		if (sin(2 * 3.14 * freqArray[0] * (static_cast<float>(j) / NUM_SAMPLES)) > 0)
-			buffer.push_back(10000 * squareWaveAmp);
+			buffer.push_back(10000 * args.squareWaveAmp);
 		else
-			buffer.push_back(-10000 * squareWaveAmp);
+			buffer.push_back(-10000 * args.squareWaveAmp);
 	}
-	
+
 	//ramp square wave sample
-	RampSamples(buffer, frac);
+	RampSamples(buffer, args.frac);
 
 	//place sample into square wave buffer
-	squareSample.loadFromSamples(&buffer[0], buffer.size(), 1, NUM_SAMPLES* (bpm / 60));	
+	squareSample.loadFromSamples(&buffer[0], buffer.size(), 1, NUM_SAMPLES * (args.bpm / 60));
 
 	//generate sine waves
-	for (size_t i = 1; i < NUM_KEYS+1; i++)
+	for (size_t i = 1; i < NUM_KEYS + 1; i++)
 	{
 		buffer.clear();
 
 		for (size_t j = 0; j < NUM_SAMPLES; j++)
-			buffer.push_back(10000 * sineWaveAmp * sin(2 * 3.14 * freqArray[i] * (static_cast<float>(j) / NUM_SAMPLES)));
-			
+			buffer.push_back(10000 * args.sineWaveAmp * sin(2 * 3.14 * freqArray[i] * (static_cast<float>(j) / NUM_SAMPLES)));
+
 		//ramp the sample 
-		RampSamples(buffer, frac);
+		RampSamples(buffer, args.frac);
 
 		//add sine wave to wave buffer
-		sineSamples[i-1].loadFromSamples(&buffer[0], buffer.size(), 1, NUM_SAMPLES * (bpm / 60));	
+		sineSamples[i - 1].loadFromSamples(&buffer[0], buffer.size(), 1, NUM_SAMPLES * (args.bpm / 60));
 	}
 }
 
 //Set the amplitudes for the square and sine waves based on volume levels
-void SetAmplitudes(float accent, float volume, float& squareAmp, float& sineAmp)
+void SetAmplitudes(Arguments& args)
 {
-	squareAmp =  pow(10,(-6 * (10 - accent) / 20));
-	sineAmp = pow(10, (-6 * (10 - volume) / 20));
+	args.squareWaveAmp = pow(10, (-6 * (10 - args.accent) / 20));
+	args.sineWaveAmp = pow(10, (-6 * (10 - args.volume) / 20));
 }
 
 //Calculate the beat time for the attack and release time for the note envelope
@@ -194,7 +189,7 @@ void RampSamples(vector<sf::Int16>& sample, float frac)
 	//apply the left half of a triangle window to the first 'NUM_SAMPLES * frac' samples,
 	//where n is the current sample
 	for (size_t i = 0; i < rampSamples; i++)
-	{ 
+	{
 		//apply triangle window formula to sample and store that value into temp
 		temp = n - ((static_cast<float>(rampSamples)));
 		temp /= (static_cast<float>(rampSamples));
@@ -206,7 +201,7 @@ void RampSamples(vector<sf::Int16>& sample, float frac)
 		sample.at(i) *= dampen;
 		++n;
 	}
-	
+
 	n = rampSamples - 1;
 
 	//apply the right half of a triangle window to last 'NUM_SAMPLES * frac' samples,
@@ -259,8 +254,9 @@ void fillMajorArray(vector<int>& scaleArray, char key)
 	}
 }
 
+
 //Parse the command line arguments that are given to run the program.
-bool ParseArguments(int& rootKey, int& sig, float& bpm, float& frac, float& accent, float& volume, int argc, char* argv[])
+bool ParseArguments(Arguments& args, int argc, const char* argv[])
 {
 	string* argvArray = new string[argc];
 	for (size_t i = 0; i < argc; i++)
@@ -270,96 +266,55 @@ bool ParseArguments(int& rootKey, int& sig, float& bpm, float& frac, float& acce
 	{
 		if (!argvArray[i].find("--root"))
 		{
-			RemoveSubString(argvArray[i], "--root");
-			RemoveSubString(argvArray[i], "[");
-			RemoveSubString(argvArray[i], "]");
-			try
-			{
-				rootKey = stoi(argvArray[i]);
-			}
-			catch (invalid_argument const& error)
-			{
-				cout << "Invalid parameter value: " << error.what() << endl;
-				return false;
-			}
+			args.rootKey = ParseSubString(argvArray[i]);
 		}
 		else if (!argvArray[i].find("--beats"))
 		{
-			RemoveSubString(argvArray[i], "--beats");
-			RemoveSubString(argvArray[i], "[");
-			RemoveSubString(argvArray[i], "]");
-			try
-			{
-				sig = stoi(argvArray[i]);
-			}
-			catch (invalid_argument const& error)
-			{
-				cout << "Invalid parameter value: " << error.what() << endl;
-				return false;
-			}
+			args.sig = ParseSubString(argvArray[i]);
 		}
 		else if (!argvArray[i].find("--bpm"))
 		{
-			RemoveSubString(argvArray[i], "--bpm");
-			RemoveSubString(argvArray[i], "[");
-			RemoveSubString(argvArray[i], "]");
-			try
-			{
-				bpm = stof(argvArray[i]);
-			}
-			catch (invalid_argument const& error)
-			{
-				cout << "Invalid parameter value: " << error.what() << endl;
-				return false;
-			}
+			args.bpm = ParseSubString(argvArray[i]);
 		}
 		else if (!argvArray[i].find("--accent"))
 		{
-			RemoveSubString(argvArray[i], "--accent");
-			RemoveSubString(argvArray[i], "[");
-			RemoveSubString(argvArray[i], "]");
-			try
-			{
-				accent = stof(argvArray[i]);
-			}
-			catch (invalid_argument const& error)
-			{
-				cout << "Invalid parameter value: " << error.what() << endl;
-				return false;
-			}
+			args.accent = ParseSubString(argvArray[i]);
 		}
 		else if (!argvArray[i].find("--volume"))
 		{
-			RemoveSubString(argvArray[i], "--volume");
-			RemoveSubString(argvArray[i], "[");
-			RemoveSubString(argvArray[i], "]");
-			try
-			{
-				volume = stof(argvArray[i]);
-			}
-			catch (invalid_argument const& error)
-			{
-				cout << "Invalid parameter value: " << error.what() << endl;
-				return false;
-			}
+			args.volume = ParseSubString(argvArray[i]);
 		}
 		else if (!argvArray[i].find("--ramp"))
 		{
-			RemoveSubString(argvArray[i], "--ramp");
-			RemoveSubString(argvArray[i], "[");
-			RemoveSubString(argvArray[i], "]");
-			try
-			{
-				frac = stof(argvArray[i]);
-			}
-			catch (invalid_argument const& error)
-			{
-				cout << "Invalid parameter value: " << error.what() << endl;
-				return false;
-			}
+			args.frac = ParseSubString(argvArray[i]);
+		}
+		else
+		{
+			cout << "ERROR: invalid argument: " << argv[i] << endl;
+			cout << "Closing program...\n";
+			return false;
 		}
 	}
 	return true;
+}
+
+float ParseSubString(string& arg)
+{
+	size_t pos = arg.find("[");
+	arg.erase(0, pos + 1);
+	pos = arg.find("]");
+	arg.erase(pos);
+	cout << arg << endl;
+
+	try
+	{
+		return stof(arg);
+	}
+	catch (invalid_argument const& error)
+	{
+		cout << "Invalid parameter value: " << error.what() << endl;
+		return -1.0;
+	}
 }
 
 //Check if the MIDI value the user gave is valid. If so, assign that value with a root key

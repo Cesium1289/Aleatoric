@@ -11,19 +11,21 @@ using namespace std;
 */
 struct Arguments
 {
-	float squareWaveAmp = 0.0f;
-	float sineWaveAmp =0.0f;
+	float squareWaveAmp;
+	float sineWaveAmp;
 	int rootKey = 45;
 	int sig = 8;
 	float bpm = 20.0f;
 	float frac = 0.5f;
 	float accent = 5.0f;
 	float volume = 8.0f;
-	char key = 'a';
+	char key;
 };
-
+bool ParseArguments(Arguments& args, int argc, const char* argv[]);
+float ParseSubString(string& obj);
 void CalculateFrequency(float freqArray[], vector<int>& scaleArray, int RootKey);
 void fillMajorArray(vector<int>& scaleArray, char key);
+void RemoveSubString(string& original, const char* substring);
 void GenerateWaves(float freqArray[], sf::SoundBuffer SineWaves[], sf::SoundBuffer& squareWave, Arguments& args);
 void SetAmplitudes(Arguments& args);
 void RampSamples(vector<sf::Int16>& sample, float frac);
@@ -35,13 +37,13 @@ const int NUM_KEYS = 7;
 
 int main()
 {
-	sf::SoundBuffer sineSamples[NUM_KEYS]; 
+	sf::SoundBuffer sineSamples[NUM_KEYS];
 	sf::SoundBuffer squareSample;
 	sf::Sound sound;
 	Arguments args;
 	vector<int> scaleArray;
 	float freqArray[NUM_KEYS];
-	
+
 	if (ValidArguments(args))
 	{
 		SetAmplitudes(args);
@@ -86,7 +88,7 @@ bool ValidArguments(Arguments& args)
 {
 	if (!CheckKeyValue(args.rootKey, args.key))
 		return false;
-		
+
 	else if (args.sig < 1)
 	{
 		cout << "Enter a beats value greater than 1!\n";
@@ -127,6 +129,17 @@ void CalculateFrequency(float freqArray[], vector<int>& scaleArray, int rootKey)
 	}
 }
 
+//Removes a substring from the string
+void RemoveSubString(string& original, const char* substring)
+{
+	std::size_t pos = original.find(substring);
+
+	if (pos != string::npos)
+		original.erase(pos, strlen(substring));
+	else
+		cout << "ERROR: unable to parse command line argument\n";
+}
+
 //Generates the square and sine waves for keys of a given scale
 void GenerateWaves(float freqArray[], sf::SoundBuffer sineSamples[], sf::SoundBuffer& squareSample, Arguments& args)
 {
@@ -140,33 +153,33 @@ void GenerateWaves(float freqArray[], sf::SoundBuffer sineSamples[], sf::SoundBu
 		else
 			buffer.push_back(-10000 * args.squareWaveAmp);
 	}
-	
+
 	//ramp square wave sample
 	RampSamples(buffer, args.frac);
 
 	//place sample into square wave buffer
-	squareSample.loadFromSamples(&buffer[0], buffer.size(), 1, NUM_SAMPLES* (args.bpm / 60));	
+	squareSample.loadFromSamples(&buffer[0], buffer.size(), 1, NUM_SAMPLES * (args.bpm / 60));
 
 	//generate sine waves
-	for (size_t i = 1; i < NUM_KEYS+1; i++)
+	for (size_t i = 1; i < NUM_KEYS + 1; i++)
 	{
 		buffer.clear();
 
 		for (size_t j = 0; j < NUM_SAMPLES; j++)
 			buffer.push_back(10000 * args.sineWaveAmp * sin(2 * 3.14 * freqArray[i] * (static_cast<float>(j) / NUM_SAMPLES)));
-			
+
 		//ramp the sample 
 		RampSamples(buffer, args.frac);
 
 		//add sine wave to wave buffer
-		sineSamples[i-1].loadFromSamples(&buffer[0], buffer.size(), 1, NUM_SAMPLES * (args.bpm / 60));
+		sineSamples[i - 1].loadFromSamples(&buffer[0], buffer.size(), 1, NUM_SAMPLES * (args.bpm / 60));
 	}
 }
 
 //Set the amplitudes for the square and sine waves based on volume levels
 void SetAmplitudes(Arguments& args)
 {
-	args.squareWaveAmp =  pow(10,(-6 * (10 - args.accent) / 20));
+	args.squareWaveAmp = pow(10, (-6 * (10 - args.accent) / 20));
 	args.sineWaveAmp = pow(10, (-6 * (10 - args.volume) / 20));
 }
 
@@ -181,7 +194,7 @@ void RampSamples(vector<sf::Int16>& sample, float frac)
 	//apply the left half of a triangle window to the first 'NUM_SAMPLES * frac' samples,
 	//where n is the current sample
 	for (size_t i = 0; i < rampSamples; i++)
-	{ 
+	{
 		//apply triangle window formula to sample and store that value into temp
 		temp = n - ((static_cast<float>(rampSamples)));
 		temp /= (static_cast<float>(rampSamples));
@@ -193,7 +206,7 @@ void RampSamples(vector<sf::Int16>& sample, float frac)
 		sample.at(i) *= dampen;
 		++n;
 	}
-	
+
 	n = rampSamples - 1;
 
 	//apply the right half of a triangle window to last 'NUM_SAMPLES * frac' samples,
@@ -270,3 +283,67 @@ int CheckKeyValue(int rootKey, char& character)
 	}
 	return 1;
 }
+
+
+/*
+//Parse the command line arguments that are given to run the program.
+bool ParseArguments(Arguments& args, int argc, const char* argv[])
+{
+	string* argvArray = new string[argc];
+	for (size_t i = 0; i < argc; i++)
+		argvArray[i] = argv[i];
+
+	for (size_t i = 0; i < argc; i++)
+	{
+		if (!argvArray[i].find("--root"))
+		{
+			args.rootKey = ParseSubString(argvArray[i]);
+		}
+		else if (!argvArray[i].find("--beats"))
+		{
+			args.sig = ParseSubString(argvArray[i]);
+		}
+		else if (!argvArray[i].find("--bpm"))
+		{
+			args.bpm = ParseSubString(argvArray[i]);
+		}
+		else if (!argvArray[i].find("--accent"))
+		{
+			args.accent = ParseSubString(argvArray[i]);
+		}
+		else if (!argvArray[i].find("--volume"))
+		{
+			args.volume = ParseSubString(argvArray[i]);
+		}
+		else if (!argvArray[i].find("--ramp"))
+		{
+			args.frac = ParseSubString(argvArray[i]);
+		}
+		else
+		{
+			cout << "ERROR: invalid argument: " << argv[i] << endl;
+			cout << "Closing program...\n";
+			return false;
+		}
+	}
+	return true;
+}
+
+float ParseSubString(string& arg)
+{
+	size_t pos = arg.find("[");
+	arg.erase(0, pos +1);
+	pos = arg.find("]");
+	arg.erase(pos);
+	cout << arg << endl;
+
+	try
+	{
+		return stof(arg);
+	}
+	catch (invalid_argument const& error)
+	{
+		cout << "Invalid parameter value: " << error.what() << endl;
+		return -1.0;
+	}
+}*/
